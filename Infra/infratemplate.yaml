@@ -1,0 +1,36 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Plantilla de infraestructura como codigo para evaluacion Inacap - DevOps y Cloud
+
+Resources:
+  # 1. Red virtual privada (VPC) requerida para la arquitectura
+  MiVPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      EnableDnsHostnames: true
+      EnableDnsSupport: true
+      Tags:
+        - Key: Name
+          Value: InacapCloudVPC
+
+  # 2. Rol IAM aplicando el principio de minimo privilegio (Seguridad DevOps)
+  MiRolServicio:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ec2.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: AccesoBasicoCloudWatchYLogs
+          PolicyStatement:
+            - Effect: Allow
+              Action:
+                - cloudwatch:PutMetricData
+                - logs:CreateLogGroup
+                - logs:CreateLogStream
+                - logs:PutLogEvents
+              Resource: "*"
